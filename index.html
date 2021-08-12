@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>O que fazer? | Organize tudo com o que faze</title>
+</head>
+<body>
+	<style type="text/css">
+		*{
+			padding: 0;
+			margin: 0;
+			box-sizing: border-box;
+			color: #fff;
+			outline: none;
+		}
+		body{
+			height: 100vh;
+			width: 100%;
+			position: relative;
+		}
+		.wrapper{
+			height: 100%;
+			width: 100%;
+			position: relative;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			background: #191D26;
+		}
+		.container{
+			width: 50%;
+			padding: 1.5rem 2rem;
+			background: #1B222C;		
+			position: relative;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			box-shadow: .6rem .6rem 0px  #fff;
+		}
+		@media(max-width: 500px){
+			.container{
+			width: 96%;
+			padding: 1rem;
+			box-shadow: .2rem .2rem 0px  #fff;
+		}
+		}
+		input,
+		h1,
+		div{
+			width: 100%;
+
+		}
+		.main{
+			margin-top: 2rem;
+			position: relative;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+		}
+		header{
+			text-align: center;
+			font-family: "monospace",sans-serif;
+		}
+		 h1{
+		 	border-bottom: dashed 2px #661B1C;
+		 	padding-bottom: .3rem;
+		 	border-width: 2px;
+			margin-bottom: 1rem;
+		}
+		.group,
+		.add-task{
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.group{
+			width: 100%;
+			justify-content: space-between;
+			border-bottom: solid 2px #ddd;
+			padding: 0.5rem;
+		}
+		.list{
+			margin-top: 2rem;
+		}
+		span.remove{
+			cursor: pointer;
+			padding: 0.3rem 0.5rem;
+			font-weight: bold ;
+			color: #661B1C;
+		}
+		span.check{
+			cursor: pointer;
+			padding: 0.3rem 0.5rem;
+			font-weight: bold ;
+			color: #fff;
+		}
+		input[type=text],
+		button{
+			border: none;
+			background: #ccc;
+			padding: 0.5rem ;
+			color: #000;
+			font-weight: 200;
+		}
+			button{
+				cursor: pointer;
+				background: #696969;
+				color: #fff;
+				font-weight: 500;
+				text-transform: uppercase;
+				font-family: "cursive", sans-serif;
+			}
+			.task{font-family: "cursive;",sans-serif;
+				display: block;
+			}
+			small{
+				font-size: 12px;
+				color: #ddd;
+
+			}
+			.error{
+				margin-top: 0.3rem;
+				color: #fff;
+				font-size: 12px;
+			}
+	</style>
+	<div class="wrapper">
+		<div class="container">
+			<header>
+				<h1>O que fazer ?</h1>
+				<span>Organize tudo com o que fazer</span>
+			</header>
+			<div class="main">
+				<div class="add-task">
+					<input type="text" class="task" placeholder=" Tarefa">
+					<button onclick="addTask()">+</button>
+				</div>
+				<small class="error"></small>
+				<div class="list"> </div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	window.addEventListener('load',()=>{previewList()});
+	
+	let list=[];
+
+	function addTask(){
+		let inputValue=document.querySelector('.task');
+		let error=document.querySelector('.error');
+		error.innerHTML=''
+		if(inputValue.value.length>1){
+			list.push(	{
+				'created_at':formatDate(),
+				'status':true,
+				'task':inputValue.value
+			});
+			inputValue.value=''
+			previewList();
+			return;
+		}
+		error.innerHTML='Verifica se o campo acima esta preenchido e que contém mais de 1 caracter'
+	
+	
+	}
+	
+	function formatDate(){
+		let date = new Date();
+		return date =`${ date.getDate()}-${ date.getMonth()>10 ? date.getMonth():'0'+date.getMonth()}-${ date.getFullYear()}  
+
+		${date.getHours()>10 ? date.getHours():'0'+date.getHours()}:${ date.getMinutes()>10 ? date.getMinutes():'0'+date.getMinutes()}:${ date.getSeconds()>10 ? date.getSeconds():'0'+date.getSeconds()}`;
+	}
+
+	function fetchTask(){
+		let embedHtml='';
+		list.sort();
+		list.forEach((item, index)=>{
+			embedHtml+=`
+				<div class="group">
+					<span class="task">${item.task} <br><small>${item.created_at}</small> </span>
+					<span>
+						`
+						if(item.status){
+							embedHtml+=`<span onclick=(updateTask(${index})) class="check">&#10003;</span>`
+						}
+							embedHtml+=`
+						<span onclick=(removeTask(${index})) class="remove">&#10007;</span>
+					</span>
+				</div> `
+		})
+		return embedHtml;
+	}
+	
+	function removeTask(task_at) {
+
+		list.splice(task_at, 1);
+		previewList();
+	}
+
+	function updateTask(task_at) {
+
+		list[task_at].status=false;
+		list[task_at].updated_at=formatDate();
+		previewList();
+	}
+
+
+	function previewList(){
+		document.querySelector('.list').innerHTML=fetchTask()	
+	}	
+	</script>
+</body>
+</html>
