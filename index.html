@@ -30,7 +30,7 @@
 			background: #191D26;
 		}
 		.container{
-			width: 50%;
+			width: 60%;
 			padding: 1.5rem 2rem;
 			background: #1B222C;		
 			position: relative;
@@ -40,13 +40,27 @@
 			flex-direction: column;
 			box-shadow: .6rem .6rem 0px  #fff;
 		}
-		@media(max-width: 500px){
+		@media(max-width: 576px){
 			.container{
-			width: 96%;
-			padding: 1rem;
-			box-shadow: .2rem .2rem 0px  #fff;
+				width: 96%;
+				padding: 1rem;
+				box-shadow: .2rem .2rem 0px  #fff;
+			}
 		}
+		@media (max-width: 768px) {
+			.container{
+				width: 85%;
+				padding: 1rem;
+				box-shadow: .2rem .2rem 0px  #fff;
+			}
 		}
+		@media (min-width: 992px) {
+			.container{
+				width: 50%;
+				padding: 1rem;
+				box-shadow: .6rem .6rem 0px  #fff;
+			}
+		 }
 		input,
 		h1,
 		div{
@@ -82,21 +96,38 @@
 			justify-content: space-between;
 			border-bottom: solid 2px #ddd;
 			padding: 0.5rem;
+
+		}
+		.group.checked{
+			background: #011a04;
 		}
 		.list{
 			margin-top: 2rem;
 		}
-		span.remove{
+		span.remove,
+		span.check,
+		span.edit
+		{
 			cursor: pointer;
 			padding: 0.3rem 0.5rem;
-			font-weight: bold ;
-			color: #661B1C;
+			font-weight: bold;
+			font-size: 20px;
+			transition: all .3s;
+		}
+		span.remove{
+			color: #d9534f;
 		}
 		span.check{
-			cursor: pointer;
-			padding: 0.3rem 0.5rem;
-			font-weight: bold ;
-			color: #fff;
+			color: #5cb85c;
+		}
+		span.edit{
+			color: #f0ad4e;
+		}
+		span.remove:hover,
+		span.check:hover,
+		span.edit:hover
+		{
+			font-size: 22px;
 		}
 		input[type=text],
 		button{
@@ -106,27 +137,41 @@
 			color: #000;
 			font-weight: 200;
 		}
-			button{
-				cursor: pointer;
-				background: #696969;
-				color: #fff;
-				font-weight: 500;
-				text-transform: uppercase;
-				font-family: "cursive", sans-serif;
-			}
-			.task{font-family: "cursive;",sans-serif;
-				display: block;
-			}
-			small{
-				font-size: 12px;
-				color: #ddd;
+		button{
+			cursor: pointer;
+			background: #696969;
+			color: #fff;
+			font-weight: bolder;
+			text-transform: uppercase;
+			font-family: "cursive", sans-serif;
+			padding: 0.5rem 3rem;
+			transition: all .6s;
+		}
 
-			}
-			.error{
-				margin-top: 0.3rem;
-				color: #fff;
-				font-size: 12px;
-			}
+		button:hover{
+			background: #191D26;
+		}
+
+		.task{
+			font-family: "cursive",sans-serif;
+			display: block;
+		}
+
+		small.created_at{
+			border-top: solid .5px #ddd;
+			font-size: 12px;
+			color: #ddd;
+			margin-top: 0.3rem 0;
+
+		}
+		.error{
+			margin-top: 0.3rem;
+			color: #fff;
+			font-size: 12px;
+		}
+		.group{
+			transition: all .3s;
+		}
 	</style>
 	<div class="wrapper">
 		<div class="container">
@@ -137,17 +182,28 @@
 			<div class="main">
 				<div class="add-task">
 					<input type="text" class="task" placeholder=" Tarefa">
-					<button onclick="addTask()">+</button>
+					<button onclick="addTask()">&#10010;</button>
 				</div>
 				<small class="error"></small>
 				<div class="list"> </div>
 			</div>
 		</div>
 	</div>
+
 	<script type="text/javascript">
 	window.addEventListener('load',()=>{previewList()});
 	
-	let list=[];
+	let list=[
+		{
+			'created_at':formatDate(),
+			'status':true,
+			'task':"francisco tembe"
+		},{
+			'created_at':formatDate(),
+			'status':true,
+			'task':"francisco tembe"
+		}
+	];
 
 	function addTask(){
 		let inputValue=document.querySelector('.task');
@@ -160,7 +216,7 @@
 				'task':inputValue.value
 			});
 			inputValue.value=''
-			previewList();
+			setTimeout(previewList,100)
 			return;
 		}
 		error.innerHTML='Verifica se o campo acima esta preenchido e que contém mais de 1 caracter'
@@ -181,37 +237,53 @@
 		list.forEach((item, index)=>{
 			embedHtml+=`
 				<div class="group">
-					<span class="task">${item.task} <br><small>${item.created_at}</small> </span>
+					<span class="task"><span class="this-task" onkeyup=updateTask(this,${index}) >${item.task}</span> <br><small class="created_at">${item.created_at}</small> </span>
 					<span>
 						`
 						if(item.status){
-							embedHtml+=`<span onclick=(updateTask(${index})) class="check">&#10003;</span>`
-						}
 							embedHtml+=`
+							<span onclick=(checkTask(${index})) class="check">&#10003;</span>
+							<span onclick=(edit(${index})) class="edit">&#9998;</span>
+							`
+						}
+						embedHtml+=`
 						<span onclick=(removeTask(${index})) class="remove">&#10007;</span>
 					</span>
 				</div> `
 		})
 		return embedHtml;
 	}
-	
+
+	function edit(task_at) {
+		let task=document.querySelectorAll('.this-task')[task_at];
+		task. contentEditable="true";
+		task.focus();
+	}
+
+	function updateTask(element, task_at){
+		list[task_at].task=element.innerText
+	}
 	function removeTask(task_at) {
 
 		list.splice(task_at, 1);
-		previewList();
+	
+		setTimeout(previewList,200)
 	}
 
-	function updateTask(task_at) {
+	function checkTask(task_at) {
 
 		list[task_at].status=false;
 		list[task_at].updated_at=formatDate();
 		previewList();
 	}
 
-
 	function previewList(){
-		document.querySelector('.list').innerHTML=fetchTask()	
+		document.querySelector('.list').innerHTML=fetchTask()	;
+		store();
 	}	
+	function store() {
+		localStorage.setItem('lists', list);
+	}
 	</script>
 </body>
 </html>
